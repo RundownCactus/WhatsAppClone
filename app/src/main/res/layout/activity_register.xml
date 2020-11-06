@@ -104,7 +104,7 @@
             android:textColor="#ffff" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/registerbutton1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -114,6 +114,7 @@
         android:layout_marginRight="64dp"
         android:text="Register"
         android:textColor="@color/green"
+        app:backgroundTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
