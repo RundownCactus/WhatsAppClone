@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,12 +14,16 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -48,6 +53,8 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
     ImageView searchicon;
     TextView searchtext;
+    de.hdodenhof.circleimageview.CircleImageView profilehomepage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +65,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         navigationView=findViewById(R.id.nav_view);
         toolbar=findViewById(R.id.toolbar);
         mainmenu=findViewById(R.id.mainmenu);
+        profilehomepage=findViewById(R.id.profilehomepage);
         image= BitmapFactory.decodeResource(getResources(),R.drawable.profile1);
         newMessages.add(new NewMessage(image,"Akash Ali","How are you?","12:13 PM",true,"1"));
+
     }
 
     @Override
@@ -79,6 +88,24 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             public void onClick(View view) {
                 Intent intent = new Intent(HomePage.this, SearchUser.class);
                 startActivity(intent);
+            }
+        });
+        profilehomepage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final BottomSheetDialog bottomSheetDialog=new BottomSheetDialog( HomePage.this,R.style.BottomSheetDialogTheme);
+                View bottomSheetView= LayoutInflater.from(HomePage.this).inflate(R.layout.layout_bottom_sheet,(LinearLayout)findViewById(R.id.bottomsheet_cl));
+                bottomSheetView.findViewById(R.id.myeditprofile).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(HomePage.this, EditProfile.class);
+                        startActivity(intent);
+                        bottomSheetDialog.dismiss();
+                    }
+                });
+                bottomSheetDialog.setContentView(bottomSheetView);
+                bottomSheetDialog.show();
+
             }
         });
         navigationView.bringToFront();
