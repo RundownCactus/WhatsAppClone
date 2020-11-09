@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
@@ -17,6 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class CreateProfile extends AppCompatActivity {
+    Integer REQUEST_CAMERA=1, SELECT_IMAGE=0;
+    ImageView accountimage,circleImageView;
     MaterialButton savebutton;
     TextInputEditText fname,lname,dob,bio,phone;
     String gender;
@@ -71,7 +74,6 @@ public class CreateProfile extends AppCompatActivity {
                 rootnode = FirebaseDatabase.getInstance();
                 myref = rootnode.getReference().child("Users").child(mAuth.getInstance().getCurrentUser().getUid());
                 myref.setValue(User);
-
                 Intent intent=new Intent(CreateProfile.this,HomePage.class);
                 startActivity(intent);
             }

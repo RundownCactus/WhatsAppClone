@@ -35,10 +35,8 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
 
     @Override
     public void onBindViewHolder(@NonNull UserSearchAdapter.MyViewHolder holder, int position) {
-        holder.user_image.setImageBitmap(newList.get(position).getImage());
         holder.username.setText(newList.get(position).getName());
-        holder.usergender.setText(newList.get(position).getGender());
-        holder.userage.setText(newList.get(position).getAge());
+        holder.userage.setText(newList.get(position).getPhone());
     }
 
     @Override
@@ -47,15 +45,11 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public ImageView user_image;
         public TextView username;
-        public TextView usergender;
         public TextView userage;
         public MyViewHolder(@NonNull View itemView, final MyRvAdapter.OnItemClickListener listener) {
             super(itemView);
-            user_image=itemView.findViewById(R.id.user_image);
             username=itemView.findViewById(R.id.username);
-            usergender=itemView.findViewById(R.id.usergender);
             userage=itemView.findViewById(R.id.userage);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

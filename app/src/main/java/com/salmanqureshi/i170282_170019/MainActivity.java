@@ -1,9 +1,12 @@
 package com.salmanqureshi.i170282_170019;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener FirebaseAuthListener;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,22 +29,11 @@ public class MainActivity extends AppCompatActivity {
         signinbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MainActivity.this,HomePage.class);
+                Intent intent=new Intent(MainActivity.this,SignIn.class);
                 startActivity(intent);
             }
         });
-        FirebaseAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    Intent intent = new Intent(MainActivity.this, HomePage.class);
-                    startActivity(intent);
-                    finish();
-                    return;
-                }
-            }
-        };
+
         registerbutton=findViewById(R.id.registerbutton);
         registerbutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,7 +42,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        getPermissions();
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void getPermissions() {
+        requestPermissions(new String []{Manifest.permission.WRITE_CONTACTS,Manifest.permission.READ_CONTACTS},1);
+    }
+
 
     @Override
     protected void onStart() {
