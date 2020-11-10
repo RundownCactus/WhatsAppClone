@@ -1,6 +1,7 @@
 package com.salmanqureshi.i170282_170019;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,10 +11,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,8 +30,11 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +45,12 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     Integer REQUEST_CODE=1;
     NavigationView navigationView;
     Toolbar toolbar;
-    RecyclerView newMessageRV;
+    RecyclerView chatRV;
     ImageView mainmenu;
     TextView text;
     ImageView profileImage;
-    List<NewMessage> newMessages;
+    //List<NewMessage> newMessages;
+    List<ChatObject> MyChats;
     MyRvAdapter adapter;
     Bitmap image;
     MaterialButton searchserviceprovideronmapinput;
@@ -56,18 +64,27 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     de.hdodenhof.circleimageview.CircleImageView profilehomepage;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        newMessages=new ArrayList<>();
+        MyChats=new ArrayList<>();
         drawerLayout=findViewById(R.id.drawer_layout);
         navigationView=findViewById(R.id.nav_view);
         toolbar=findViewById(R.id.toolbar);
         mainmenu=findViewById(R.id.mainmenu);
         profilehomepage=findViewById(R.id.profilehomepage);
         image= BitmapFactory.decodeResource(getResources(),R.drawable.profile1);
-        newMessages.add(new NewMessage(image,"Akash Ali","How are you?","12:13 PM",true,"1"));
+
+        chatRV=findViewById(R.id.chatRV);
+        RecyclerView.LayoutManager lm= new LinearLayoutManager(this);
+        chatRV.setLayoutManager(lm);
+        adapter=new MyRvAdapter(MyChats,this);
+        chatRV.setAdapter(adapter);
+        getPermissions();
+        getUserChat();
+        //newMessages.add(new NewMessage(image,"Akash Ali","How are you?","12:13 PM",true,"1"));
 
     }
 
@@ -116,12 +133,6 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
 
 
-        newMessageRV=findViewById(R.id.newMessageRV);
-        RecyclerView.LayoutManager lm= new LinearLayoutManager(this);
-        newMessageRV.setLayoutManager(lm);
-        adapter=new MyRvAdapter(newMessages,this);
-        newMessageRV.setAdapter(adapter);
-
         View header = navigationView.getHeaderView(0);
         text = (TextView) header.findViewById(R.id.username);
         profileImage=(ImageView) header.findViewById(R.id.circleImageView);
@@ -134,6 +145,38 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         adapter.setOnItemClickListener(new MyRvAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
+
+            }
+        });
+    }
+
+    private void getUserChat(){
+        DatabaseReference mUserChatDB = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat");
+        mUserChatDB.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()){
+                        ChatObject Chat = new ChatObject(childSnapshot.getKey());
+                        boolean exists = false;
+                        for (ChatObject mItr : MyChats){
+                            if(mItr.getKey().equals(Chat.getKey())){
+                                exists = true;
+                            }
+                        }
+                        if(exists){
+                            Log.d("BC", "BHECNHOD");
+                            continue;
+                        }
+                        MyChats.add(Chat);
+                        adapter.notifyDataSetChanged();
+                        Log.d("BC", "BHECNHOD");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
@@ -182,5 +225,9 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
         }
         return true;
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void getPermissions() {
+        requestPermissions(new String []{Manifest.permission.WRITE_CONTACTS,Manifest.permission.READ_CONTACTS},1);
     }
 }

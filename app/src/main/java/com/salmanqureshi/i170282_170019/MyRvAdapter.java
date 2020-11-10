@@ -15,10 +15,10 @@ import java.util.List;
 
 public class MyRvAdapter extends RecyclerView.Adapter<MyRvAdapter.MyViewHolder> {
 
-    List<NewMessage> newList;
+    List<ChatObject> newList;
     Context c;
     private OnItemClickListener mListener;
-    public MyRvAdapter(List<NewMessage> newList, Context c) {
+    public MyRvAdapter(List<ChatObject> newList, Context c) {
         this.c=c;
         this.newList=newList;
     }

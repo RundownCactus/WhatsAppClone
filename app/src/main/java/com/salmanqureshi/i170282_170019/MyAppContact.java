@@ -3,7 +3,15 @@ package com.salmanqureshi.i170282_170019;
 import android.graphics.Bitmap;
 
 public class MyAppContact {
+    private String uid;
     private String name;
+
+    public MyAppContact(String uid, String name, String phone) {
+        this.uid = uid;
+        this.name = name;
+        this.phone = phone;
+    }
+
     private String phone;
 
     public String getName() {
@@ -22,8 +30,11 @@ public class MyAppContact {
         this.phone = phone;
     }
 
-    public MyAppContact(String name, String phone) {
-        this.name = name;
-        this.phone = phone;
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

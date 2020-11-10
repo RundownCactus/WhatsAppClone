@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
 public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.MyViewHolder> {
@@ -37,6 +40,7 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
     public void onBindViewHolder(@NonNull UserSearchAdapter.MyViewHolder holder, int position) {
         holder.username.setText(newList.get(position).getName());
         holder.userage.setText(newList.get(position).getPhone());
+
     }
 
     @Override
@@ -58,6 +62,10 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
                             listener.onItemClick(position);
+                            String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(true);
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(true);
                         }
                     }
                 }

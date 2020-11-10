@@ -2,7 +2,8 @@ package com.salmanqureshi.i170282_170019;
 
 import android.graphics.Bitmap;
 
-public class NewMessage {
+public class ChatObject {
+    private String key;
     private Bitmap image;
     private String name;
     private String message;
@@ -10,13 +11,26 @@ public class NewMessage {
     private boolean isOnline;
     private String messageCount;
 
-    public NewMessage(Bitmap image, String name, String message, String time, boolean isOnline, String messageCount) {
+    public ChatObject(Bitmap image, String name, String message, String time, boolean isOnline, String messageCount, String key) {
         this.image = image;
         this.name = name;
         this.message = message;
         this.time = time;
         this.isOnline = isOnline;
         this.messageCount = messageCount;
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public ChatObject(String key) {
+        this.key = key;
     }
 
     public Bitmap getImage() {

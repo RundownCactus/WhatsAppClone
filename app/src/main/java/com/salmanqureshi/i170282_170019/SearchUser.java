@@ -58,13 +58,14 @@ public class SearchUser extends AppCompatActivity {
         adapter=new UserSearchAdapter(users,this);
         userSearch.setAdapter(adapter);
 
+
+        getContactList();
         adapter.setOnItemClickListener(new MyRvAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-
+                
             }
         });
-        getContactList();
 
     }
 
@@ -73,7 +74,7 @@ public class SearchUser extends AppCompatActivity {
         while(phone.moveToNext()){
             String name = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             String phno = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            MyAppContact cont = new MyAppContact(name,phno);
+            MyAppContact cont = new MyAppContact("",name,phno);
             getUserDetails(cont);
         }
     }
@@ -97,7 +98,7 @@ public class SearchUser extends AppCompatActivity {
                                 if (childSnapshot.child("fname").getValue() != null) {
                                     name = childSnapshot.child("fname").getValue().toString() + childSnapshot.child("lname").getValue().toString();
                                 }
-                                MyAppContact verUser = new MyAppContact(name, phno);
+                                MyAppContact verUser = new MyAppContact(childSnapshot.getKey(),name, phno);
                                 users.add(verUser);
                                 adapter.notifyDataSetChanged();
                             }
