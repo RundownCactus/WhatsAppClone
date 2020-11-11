@@ -63,6 +63,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     TextView searchtext;
     de.hdodenhof.circleimageview.CircleImageView profilehomepage;
 
+    ImageView homepagelogo;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -91,6 +92,16 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     @Override
     protected void onResume() {
         super.onResume();
+        homepagelogo=findViewById(R.id.homepagelogo);
+        homepagelogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomePage.this, MessageActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
         searchicon=findViewById(R.id.searchicon);
         searchicon.setOnClickListener(new View.OnClickListener() {
             @Override
