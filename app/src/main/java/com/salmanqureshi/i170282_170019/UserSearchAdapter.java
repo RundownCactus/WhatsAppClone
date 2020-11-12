@@ -1,6 +1,7 @@
 package com.salmanqureshi.i170282_170019;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -62,11 +67,25 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
                             listener.onItemClick(position);
-                            
-                            String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
 
-                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(newList.get(position).getUid());
-                            FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(FirebaseAuth.getInstance().getUid());
+                            DatabaseReference mUsers = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat");
+                            mUsers.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    for (DataSnapshot child : snapshot.getChildren()) {
+                                        if (!child.getValue().toString().equals(newList.get(position).getUid())) {
+                                            String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+                                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(newList.get(position).getUid());
+                                            FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(FirebaseAuth.getInstance().getUid());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
                         }
                     }
                 }

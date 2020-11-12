@@ -44,6 +44,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -56,6 +57,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.security.auth.callback.Callback;
 
 public class HomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     //NAVIGATION DRAWER VARIABLES START
@@ -84,7 +87,9 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     ImageView searchicon;
     TextView searchtext;
     de.hdodenhof.circleimageview.CircleImageView profilehomepage;
-
+    public interface MyCallback {
+        void onCallback(String value);
+    }
     ImageView homepagelogo;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -117,7 +122,6 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                 imgViewer.setImageBitmap(bm);
             }
         });
-        //Glide.with(HomePage.this) .load(pullImg).apply(new RequestOptions().dontAnimate()).into(profilehomepage);
         chatRV=findViewById(R.id.chatRV);
         RecyclerView.LayoutManager lm= new LinearLayoutManager(this);
         chatRV.setLayoutManager(lm);
@@ -125,7 +129,6 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         chatRV.setAdapter(adapter);
         getPermissions();
         getUserChat();
-
 
         //newMessages.add(new NewMessage(image,"Akash Ali","How are you?","12:13 PM",true,"1"));
 
@@ -215,14 +218,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                         mprofile.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                for (DataSnapshot child : snapshot.getChildren()){
-                                    if(child.getKey().equals("fname")){
-                                        Log.d("BC", child.getValue().toString());
-                                        //this value is not persistant and gets lost
-                                        chat.setName(child.getValue().toString());
-
-                                    }
-                                }
+                                collectData(snapshot,childSnapshot);
                             }
 
                             @Override
@@ -231,28 +227,18 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                             }
                         });
 
-                        StorageReference pullImg = mStorageRef.child("ProfilePictures").child(childSnapshot.getValue().toString());
-                        final long ONE_MEGABYTE = 1024 * 1024;
-                        pullImg.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                            @Override
-                            public void onSuccess(byte[] bytes) {
-                                img = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                chat.setImage(img);
-                            }
-                        });
                         //chat.SetOnline();
                         //   this will cause null exception Log.d("BC", chat.getMessage());
-                        boolean exists = false;
-                        for (ChatObject mItr : MyChats){
-                            if(mItr.getKey().equals(chat.getKey())){
-                                exists = true;
-                            }
-                        }
-                        if(exists){
-                            continue;
-                        }
-                        MyChats.add(chat);
-                        adapter.notifyDataSetChanged();
+                        //boolean exists = false;
+                        //for (ChatObject mItr : MyChats){
+                            //if(mItr.getKey().equals(chat.getKey())){
+                            //    exists = true;
+                          //  }
+                        //}
+                        //if(exists){
+                         //   continue;
+                       // }
+
                     }
                 }
             }
@@ -262,6 +248,28 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
             }
         });
+    }
+
+    private void collectData(DataSnapshot snapshot,DataSnapshot childSnapshot) {
+        for (DataSnapshot child : snapshot.getChildren()){
+            if(child.getKey().equals("fname")){
+                name = child.getValue().toString();
+            }
+        }
+        StorageReference pullImg = mStorageRef.child("ProfilePictures").child(childSnapshot.getValue().toString());
+        final long ONE_MEGABYTE = 1024 * 1024;
+        pullImg.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                img = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                update(name,img,childSnapshot.getKey());
+            }
+        });
+    }
+
+    private void update(String name, Bitmap img,String key) {
+        MyChats.add(new ChatObject(img,name,"How are you?","12:13 PM",true,"1",key));
+        adapter.notifyDataSetChanged();
     }
 
 
