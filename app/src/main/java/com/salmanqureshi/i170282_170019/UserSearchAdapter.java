@@ -62,10 +62,11 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
                             listener.onItemClick(position);
+                            
                             String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
 
-                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(true);
-                            FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(true);
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(newList.get(position).getUid());
+                            FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(FirebaseAuth.getInstance().getUid());
                         }
                     }
                 }

@@ -12,11 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -25,6 +30,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -34,10 +42,20 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class HomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     //NAVIGATION DRAWER VARIABLES START
@@ -48,7 +66,8 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     RecyclerView chatRV;
     ImageView mainmenu;
     TextView text;
-    ImageView profileImage;
+    ImageView profileImage,pIMG;
+
     //List<NewMessage> newMessages;
     List<ChatObject> MyChats;
     MyRvAdapter adapter;
@@ -56,7 +75,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     MaterialButton searchserviceprovideronmapinput;
     FirebaseDatabase rootnode;
     DatabaseReference myref;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private StorageReference mStorageRef;
+    Bitmap img;
+    String name;
     //NAVIGATION DRAWER VARIABLES START
 
     ImageView searchicon;
@@ -75,9 +97,27 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         navigationView=findViewById(R.id.nav_view);
         toolbar=findViewById(R.id.toolbar);
         mainmenu=findViewById(R.id.mainmenu);
+        pIMG = findViewById(R.id.profileaccountimage);
         profilehomepage=findViewById(R.id.profilehomepage);
-        image= BitmapFactory.decodeResource(getResources(),R.drawable.profile1);
-
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+        Log.d("BC", mAuth.getUid());
+        StorageReference pullImg = mStorageRef.child("ProfilePictures").child(mAuth.getUid());
+        final long ONE_MEGABYTE = 1024 * 1024;
+        pullImg.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                ImageView imgViewer = (ImageView) findViewById(R.id.profilehomepage);
+                Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                DisplayMetrics dm = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(dm);
+                imgViewer.setMinimumHeight(dm.heightPixels);
+                imgViewer.setMinimumWidth(dm.widthPixels);
+                //pIMG.setImageBitmap(bm);
+                imgViewer.setImageBitmap(bm);
+            }
+        });
+        //Glide.with(HomePage.this) .load(pullImg).apply(new RequestOptions().dontAnimate()).into(profilehomepage);
         chatRV=findViewById(R.id.chatRV);
         RecyclerView.LayoutManager lm= new LinearLayoutManager(this);
         chatRV.setLayoutManager(lm);
@@ -85,6 +125,8 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         chatRV.setAdapter(adapter);
         getPermissions();
         getUserChat();
+
+
         //newMessages.add(new NewMessage(image,"Akash Ali","How are you?","12:13 PM",true,"1"));
 
     }
@@ -168,20 +210,49 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     for (DataSnapshot childSnapshot : snapshot.getChildren()){
-                        ChatObject Chat = new ChatObject(childSnapshot.getKey());
+                        ChatObject chat = new ChatObject(childSnapshot.getKey());
+                        DatabaseReference mprofile = FirebaseDatabase.getInstance().getReference().child("Users").child(childSnapshot.getValue().toString());
+                        mprofile.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                for (DataSnapshot child : snapshot.getChildren()){
+                                    if(child.getKey().equals("fname")){
+                                        Log.d("BC", child.getValue().toString());
+                                        //this value is not persistant and gets lost
+                                        chat.setName(child.getValue().toString());
+
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+                        StorageReference pullImg = mStorageRef.child("ProfilePictures").child(childSnapshot.getValue().toString());
+                        final long ONE_MEGABYTE = 1024 * 1024;
+                        pullImg.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+                                img = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                chat.setImage(img);
+                            }
+                        });
+                        //chat.SetOnline();
+                        //   this will cause null exception Log.d("BC", chat.getMessage());
                         boolean exists = false;
                         for (ChatObject mItr : MyChats){
-                            if(mItr.getKey().equals(Chat.getKey())){
+                            if(mItr.getKey().equals(chat.getKey())){
                                 exists = true;
                             }
                         }
                         if(exists){
-                            Log.d("BC", "BHECNHOD");
                             continue;
                         }
-                        MyChats.add(Chat);
+                        MyChats.add(chat);
                         adapter.notifyDataSetChanged();
-                        Log.d("BC", "BHECNHOD");
                     }
                 }
             }
@@ -192,6 +263,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             }
         });
     }
+
 
     @Override
     protected void onStart() {
@@ -240,5 +312,21 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void getPermissions() {
         requestPermissions(new String []{Manifest.permission.WRITE_CONTACTS,Manifest.permission.READ_CONTACTS},1);
+    }
+    private Bitmap getImageBitmap(String url) {
+        Bitmap bm = null;
+        try {
+            URL aURL = new URL(url);
+            URLConnection conn = aURL.openConnection();
+            conn.connect();
+            InputStream is = conn.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            bm = BitmapFactory.decodeStream(bis);
+            bis.close();
+            is.close();
+        } catch (IOException e) {
+            Log.e("BC", "Error getting bitmap", e);
+        }
+        return bm;
     }
 }

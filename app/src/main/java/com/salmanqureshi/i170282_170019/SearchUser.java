@@ -63,7 +63,8 @@ public class SearchUser extends AppCompatActivity {
         adapter.setOnItemClickListener(new MyRvAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                
+                Intent intent=new Intent(SearchUser.this,MessageActivity.class);
+                startActivity(intent);
             }
         });
 

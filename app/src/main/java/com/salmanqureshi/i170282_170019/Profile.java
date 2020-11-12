@@ -1,5 +1,7 @@
 package com.salmanqureshi.i170282_170019;
 
+import android.net.Uri;
+
 public class Profile {
     private String fname;
     private String lname;
@@ -16,6 +18,11 @@ public class Profile {
         this.bio = bio;
         this.gender = gender;
     }
+
+    public Profile(){
+
+    }
+
 
     public String getFname() {
         return fname;

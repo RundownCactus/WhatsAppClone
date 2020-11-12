@@ -21,6 +21,8 @@ public class ChatObject {
         this.key = key;
     }
 
+
+
     public String getKey() {
         return key;
     }
@@ -67,6 +69,9 @@ public class ChatObject {
 
     public boolean isOnline() {
         return isOnline;
+    }
+    public void SetOnline() {
+        isOnline = true;
     }
 
     public void setOnline(boolean online) {

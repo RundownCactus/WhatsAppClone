@@ -56,8 +56,9 @@ public class Register extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
                             Toast.makeText(Register.this, "Sign Up Error", Toast.LENGTH_SHORT).show();
+                            Intent intent=new Intent(Register.this,Register.class);
+                            startActivity(intent);
                         } else {
-                            Log.d("BHECNHOD", "SUCCES BHECNHIOD");
                             Toast.makeText(Register.this, "Sign Up SUCCESS", Toast.LENGTH_SHORT).show();
                             //String user_id = mAuth.getCurrentUser().getUid();
                             //DatabaseReference curr_user_db = FirebaseDatabase.getInstance().getReference().child("User").child("Customers").child(user_id);
