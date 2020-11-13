@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +26,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +37,12 @@ public class SearchUser extends AppCompatActivity {
     RecyclerView userSearch;
     TextView text;
     ImageView profileImage;
-    List<MyAppContact> users,VerUsers;
+    List<MyAppContact> users;
     UserSearchAdapter adapter;
-    Bitmap image;
+    String rcvId;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener FirebaseAuthListener;
-
+    private StorageReference mStorageRef;
     private FirebaseDatabase rootnode;
     private DatabaseReference myref;
 
@@ -49,25 +52,52 @@ public class SearchUser extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_user);
-        image= BitmapFactory.decodeResource(getResources(),R.drawable.profile1);
         users=new ArrayList<>();
-        VerUsers=new ArrayList<>();
         userSearch=findViewById(R.id.usersRV);
         RecyclerView.LayoutManager lm= new LinearLayoutManager(this);
         userSearch.setLayoutManager(lm);
         adapter=new UserSearchAdapter(users,this);
         userSearch.setAdapter(adapter);
 
-
+        mStorageRef = FirebaseStorage.getInstance().getReference();
         getContactList();
+
         adapter.setOnItemClickListener(new MyRvAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Intent intent=new Intent(SearchUser.this,MessageActivity.class);
-                startActivity(intent);
-            }
+
+                DatabaseReference mUsers = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat");
+
+                mUsers.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot.exists()){
+                            for (DataSnapshot child : snapshot.getChildren()) {
+                                if (child.getValue().toString().equals(users.get(position).getUid())) {
+                                    String key = child.getKey();
+                                    String name = users.get(position).getName();
+                                    StartIt(name,rcvId,key);
+                                    }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+                }
         });
 
+    }
+
+    private void StartIt(String name, String img,String key) {
+        Intent intent=new Intent(SearchUser.this,MessageActivity.class);
+        intent.putExtra("name",name);
+        intent.putExtra("img",img);
+        intent.putExtra("key",key);
+        startActivity(intent);
     }
 
     private void getContactList(){
@@ -97,12 +127,13 @@ public class SearchUser extends AppCompatActivity {
                                     phno = childSnapshot.child("phone").getValue().toString();
                                 }
                                 if (childSnapshot.child("fname").getValue() != null) {
-                                    name = childSnapshot.child("fname").getValue().toString() + childSnapshot.child("lname").getValue().toString();
+                                    name = childSnapshot.child("fname").getValue().toString() + " " +childSnapshot.child("lname").getValue().toString();
                                 }
-                                MyAppContact verUser = new MyAppContact(childSnapshot.getKey(),name, phno);
+                                MyAppContact verUser = new MyAppContact(key,name, phno);
+                                setData(childSnapshot.getKey());
                                 users.add(verUser);
                                 adapter.notifyDataSetChanged();
-                            }
+                                }
                     }
                 }
             }
@@ -112,6 +143,12 @@ public class SearchUser extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void setData(String key) {
+        rcvId = key;
+
+
     }
 
 
@@ -125,7 +162,5 @@ public class SearchUser extends AppCompatActivity {
                 onBackPressed();
             }
         });
-
-
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 public class ChatObject {
     private String key;
+    private String phone;
     private Bitmap image;
     private String name;
     private String message;
@@ -11,7 +12,7 @@ public class ChatObject {
     private boolean isOnline;
     private String messageCount;
 
-    public ChatObject(Bitmap image, String name, String message, String time, boolean isOnline, String messageCount, String key) {
+    public ChatObject(Bitmap image, String name, String message, String time, boolean isOnline, String messageCount, String key,String phone) {
         this.image = image;
         this.name = name;
         this.message = message;
@@ -19,9 +20,17 @@ public class ChatObject {
         this.isOnline = isOnline;
         this.messageCount = messageCount;
         this.key = key;
+        this.phone = phone;
     }
 
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     public String getKey() {
         return key;

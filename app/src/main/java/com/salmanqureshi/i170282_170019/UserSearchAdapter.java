@@ -63,21 +63,29 @@ public class UserSearchAdapter extends RecyclerView.Adapter<UserSearchAdapter.My
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     if (listener != null) {
+
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
                             listener.onItemClick(position);
-
                             DatabaseReference mUsers = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat");
+
                             mUsers.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    for (DataSnapshot child : snapshot.getChildren()) {
-                                        if (!child.getValue().toString().equals(newList.get(position).getUid())) {
-                                            String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
-                                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(newList.get(position).getUid());
-                                            FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(FirebaseAuth.getInstance().getUid());
+                                    if(snapshot.exists()){
+                                        for (DataSnapshot child : snapshot.getChildren()) {
+                                            if (!child.getValue().toString().equals(newList.get(position).getUid())) {
+                                                String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+                                                FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(newList.get(position).getUid());
+                                                FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(FirebaseAuth.getInstance().getUid());
+                                            }
                                         }
+                                    }else{
+                                        String key = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+                                        FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat").child(key).setValue(newList.get(position).getUid());
+                                        FirebaseDatabase.getInstance().getReference().child("Users").child(newList.get(position).getUid()).child("chat").child(key).setValue(FirebaseAuth.getInstance().getUid());
                                     }
                                 }
 

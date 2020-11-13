@@ -82,14 +82,14 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     private StorageReference mStorageRef;
     Bitmap img;
     String name;
+    String phone;
+    String rcvId;
     //NAVIGATION DRAWER VARIABLES START
 
     ImageView searchicon;
     TextView searchtext;
     de.hdodenhof.circleimageview.CircleImageView profilehomepage;
-    public interface MyCallback {
-        void onCallback(String value);
-    }
+
     ImageView homepagelogo;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -151,6 +151,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         searchicon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(HomePage.this, SearchUser.class);
                 startActivity(intent);
             }
@@ -201,11 +202,46 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         adapter.setOnItemClickListener(new MyRvAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
+                String name = MyChats.get(position).getName();
+                myref = FirebaseDatabase.getInstance().getReference().child("Users");
+                Query getall = myref.orderByChild("phone").equalTo(MyChats.get(position).getPhone());
+                getall.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot.exists()){
+                            String name = "",
+                                    phno = "";
+                            for(DataSnapshot childSnapshot : snapshot.getChildren()){
+                                String key = childSnapshot.getKey();
+                                if(!key.equals(mAuth.getInstance().getCurrentUser().getUid().toString())) {
+                                      setData(childSnapshot.getKey(),position);
+                                }
+                            }
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
         });
     }
 
+    private void setData(String toString,int position) {
+        rcvId= toString;
+        StartIt(name,rcvId,position);
+    }
+
+    private void StartIt(String name, String img,int position) {
+        Intent intent=new Intent(HomePage.this,MessageActivity.class);
+        intent.putExtra("name",name);
+        intent.putExtra("img",img);
+        Log.d("BUS AKHRI", MyChats.get(position).getKey());
+        intent.putExtra("key",MyChats.get(position).getKey());
+        startActivity(intent);
+    }
     private void getUserChat(){
         DatabaseReference mUserChatDB = FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("chat");
         mUserChatDB.addValueEventListener(new ValueEventListener() {
@@ -255,6 +291,9 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             if(child.getKey().equals("fname")){
                 name = child.getValue().toString();
             }
+            if(child.getKey().equals("phone")){
+                phone = child.getValue().toString();
+            }
         }
         StorageReference pullImg = mStorageRef.child("ProfilePictures").child(childSnapshot.getValue().toString());
         final long ONE_MEGABYTE = 1024 * 1024;
@@ -262,13 +301,13 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             @Override
             public void onSuccess(byte[] bytes) {
                 img = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                update(name,img,childSnapshot.getKey());
+                update(name,img,childSnapshot.getKey(),phone);
             }
         });
     }
 
-    private void update(String name, Bitmap img,String key) {
-        MyChats.add(new ChatObject(img,name,"How are you?","12:13 PM",true,"1",key));
+    private void update(String name, Bitmap img,String key,String phone) {
+        MyChats.add(new ChatObject(img,name,"How are you?","12:13 PM",true,"1",key,phone));
         adapter.notifyDataSetChanged();
     }
 
