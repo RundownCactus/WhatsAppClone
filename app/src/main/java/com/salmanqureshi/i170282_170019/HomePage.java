@@ -1,6 +1,7 @@
 package com.salmanqureshi.i170282_170019;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,7 +72,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     ImageView mainmenu;
     TextView text;
     ImageView profileImage,pIMG;
-
+    List<String> msgs;
     //List<NewMessage> newMessages;
     List<ChatObject> MyChats;
     MyRvAdapter adapter;
@@ -105,6 +107,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         pIMG = findViewById(R.id.profileaccountimage);
         profilehomepage=findViewById(R.id.profilehomepage);
         mStorageRef = FirebaseStorage.getInstance().getReference();
+        msgs = new ArrayList<>();
         Log.d("BC", mAuth.getUid());
         StorageReference pullImg = mStorageRef.child("ProfilePictures").child(mAuth.getUid());
         final long ONE_MEGABYTE = 1024 * 1024;
@@ -238,7 +241,6 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         Intent intent=new Intent(HomePage.this,MessageActivity.class);
         intent.putExtra("name",name);
         intent.putExtra("img",img);
-        Log.d("BUS AKHRI", MyChats.get(position).getKey());
         intent.putExtra("key",MyChats.get(position).getKey());
         startActivity(intent);
     }
@@ -291,6 +293,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             if(child.getKey().equals("fname")){
                 name = child.getValue().toString();
             }
+            if(child.getKey().equals("lname")){
+                name = name + " ";
+                name += child.getValue().toString();
+            }
             if(child.getKey().equals("phone")){
                 phone = child.getValue().toString();
             }
@@ -307,10 +313,31 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     }
 
     private void update(String name, Bitmap img,String key,String phone) {
-        MyChats.add(new ChatObject(img,name,"How are you?","12:13 PM",true,"1",key,phone));
+
+        DatabaseReference msg1 = FirebaseDatabase.getInstance().getReference().child("Chat").child(key);
+        Query lastmsg = msg1.limitToLast(1);
+        lastmsg.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot child: snapshot.getChildren()){
+                    anotherone(child.child("text").getValue().toString(),key,phone);
+                }
+            }
+
+            @java.lang.Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        //android.util.Log.d("BCCCCCCCC",(msgs.get(0)) );
+
+}
+
+    private void anotherone(String snapshot,String key,String phone) {
+        MyChats.add(new ChatObject(img,name,snapshot,"12:13 PM",true,"1",key,phone));
         adapter.notifyDataSetChanged();
     }
-
 
     @Override
     protected void onStart() {

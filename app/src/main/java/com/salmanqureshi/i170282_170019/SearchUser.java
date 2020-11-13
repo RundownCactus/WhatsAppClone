@@ -58,7 +58,6 @@ public class SearchUser extends AppCompatActivity {
         userSearch.setLayoutManager(lm);
         adapter=new UserSearchAdapter(users,this);
         userSearch.setAdapter(adapter);
-
         mStorageRef = FirebaseStorage.getInstance().getReference();
         getContactList();
 

@@ -45,6 +45,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Chat chat=newList.get(position);
         holder.show_message.setText(chat.getMessage());
+        holder.receiver_image.setImageBitmap(chat.getImg());
 
     }
 
@@ -59,7 +60,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            receiver_image=itemView.findViewById(R.id.receiver_image);
+
+            receiver_image=itemView.findViewById(R.id.image);
             show_message=itemView.findViewById(R.id.show_message);
         }
     }
