@@ -2,18 +2,30 @@ package com.salmanqureshi.i170282_170019;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
 public class Chat {
     private Bitmap img;
     private String sender;
     private String messageId;
     private String message;
+    ArrayList<String> mUriList;
 
-    public Chat(Bitmap img,String sender, String messageId, String message) {
+    public Chat(Bitmap img,String sender, String messageId, String message,ArrayList<String> mUriList) {
         this.img = img;
         this.sender = sender;
         this.messageId = messageId;
         this.message = message;
+        this.mUriList = mUriList;
     }
+
+    public ArrayList<String> getmUriList() {
+        return mUriList;
+    }
+
+    public void setmUriList(ArrayList<String> mUriList) {
+        this.mUriList = mUriList;
+    }
+
     public Chat(String sender, String messageId, String message) {
         this.sender = sender;
         this.messageId = messageId;

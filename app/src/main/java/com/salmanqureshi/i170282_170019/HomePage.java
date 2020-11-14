@@ -50,6 +50,7 @@ import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.onesignal.OneSignal;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     NavigationView navigationView;
     Toolbar toolbar;
     RecyclerView chatRV;
-    ImageView mainmenu;
+    ImageView mainmenu,mediabtn;
     TextView text;
     ImageView profileImage,pIMG;
     List<String> msgs;
@@ -100,6 +101,18 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         MyChats=new ArrayList<>();
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
+        OneSignal.setSubscription(true);
+        OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
+            @Override
+            public void idsAvailable(String userId, String registrationId) {
+                FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("notificationKey").setValue(userId);
+            }
+        });
+        new SendNotif("message1","headi",null);
         drawerLayout=findViewById(R.id.drawer_layout);
         navigationView=findViewById(R.id.nav_view);
         toolbar=findViewById(R.id.toolbar);
@@ -264,19 +277,6 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                             }
                         });
-
-                        //chat.SetOnline();
-                        //   this will cause null exception Log.d("BC", chat.getMessage());
-                        //boolean exists = false;
-                        //for (ChatObject mItr : MyChats){
-                            //if(mItr.getKey().equals(chat.getKey())){
-                            //    exists = true;
-                          //  }
-                        //}
-                        //if(exists){
-                         //   continue;
-                       // }
-
                     }
                 }
             }
@@ -287,6 +287,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             }
         });
     }
+
 
     private void collectData(DataSnapshot snapshot,DataSnapshot childSnapshot) {
         for (DataSnapshot child : snapshot.getChildren()){
@@ -376,10 +377,12 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.nav_logout:
-                //Intent intent=new Intent(BasicSearch.this,History.class);
-                //startActivity(intent);
-                break;
-
+                OneSignal.setSubscription(false);
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
         }
         return true;
     }

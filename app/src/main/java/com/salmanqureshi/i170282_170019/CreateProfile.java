@@ -32,6 +32,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 
+import static androidx.core.provider.FontsContractCompat.FontRequestCallback.RESULT_OK;
+
 public class CreateProfile extends AppCompatActivity {
     Integer REQUEST_CAMERA=1, SELECT_IMAGE=0;
     ImageView accountimage;
@@ -136,6 +138,7 @@ public class CreateProfile extends AppCompatActivity {
     private void getgender(String selectedChipData) {
         gender = selectedChipData;
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

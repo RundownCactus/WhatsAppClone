@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.stfalcon.frescoimageviewer.ImageViewer;
 
 import java.util.List;
 
@@ -46,6 +48,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
         Chat chat=newList.get(position);
         holder.show_message.setText(chat.getMessage());
         holder.receiver_image.setImageBitmap(chat.getImg());
+        if(newList.get(holder.getAdapterPosition()).getmUriList().isEmpty()){
+            holder.viewmedia.setVisibility(View.GONE);
+        }
+        holder.viewmedia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ImageViewer.Builder(v.getContext(), newList.get(holder.getAdapterPosition()).getmUriList())
+                        .setStartPosition(0)
+                        .show();
+            }
+        });
 
     }
 
@@ -57,12 +70,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyViewHo
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView receiver_image;
         public TextView show_message;
+        public Button viewmedia;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
 
             receiver_image=itemView.findViewById(R.id.image);
             show_message=itemView.findViewById(R.id.show_message);
+            viewmedia=itemView.findViewById(R.id.media);
         }
     }
 

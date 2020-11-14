@@ -2,6 +2,8 @@ package com.salmanqureshi.i170282_170019;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
+
 public class ChatObject {
     private String key;
     private String phone;
@@ -22,6 +24,7 @@ public class ChatObject {
         this.key = key;
         this.phone = phone;
     }
+
 
 
     public String getPhone() {
