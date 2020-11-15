@@ -88,7 +88,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     String phone;
     String rcvId;
     //NAVIGATION DRAWER VARIABLES START
-
+    String notificationKey=null;
     ImageView searchicon;
     TextView searchtext;
     de.hdodenhof.circleimageview.CircleImageView profilehomepage;
@@ -101,9 +101,9 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         MyChats=new ArrayList<>();
+
         OneSignal.startInit(this)
                 .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-                .unsubscribeWhenNotificationsAreDisabled(true)
                 .init();
         OneSignal.setSubscription(true);
         OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
@@ -112,7 +112,8 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                 FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("notificationKey").setValue(userId);
             }
         });
-        new SendNotif("message1","headi",null);
+
+
         drawerLayout=findViewById(R.id.drawer_layout);
         navigationView=findViewById(R.id.nav_view);
         toolbar=findViewById(R.id.toolbar);
@@ -255,6 +256,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         intent.putExtra("name",name);
         intent.putExtra("img",img);
         intent.putExtra("key",MyChats.get(position).getKey());
+        intent.putExtra("notif",notificationKey);
         startActivity(intent);
     }
     private void getUserChat(){
@@ -300,6 +302,11 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             }
             if(child.getKey().equals("phone")){
                 phone = child.getValue().toString();
+            }
+            if(child.getKey().equals("notificationKey")){
+                notificationKey = child.getValue().toString();
+                //
+                //new SendNotif("message1","heading 1",notificationKey);
             }
         }
         StorageReference pullImg = mStorageRef.child("ProfilePictures").child(childSnapshot.getValue().toString());

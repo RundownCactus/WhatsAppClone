@@ -60,6 +60,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.onesignal.OneSignal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,6 +91,7 @@ public class MessageActivity extends AppCompatActivity {
     MediaAdapter mAdapter;
     RecyclerView messageRV,mMedia;
     DatabaseReference mChatDb;
+    String notificationKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +103,8 @@ public class MessageActivity extends AppCompatActivity {
         name = getIntent().getStringExtra("name");
         picS = getIntent().getStringExtra("img");
         ChatId = getIntent().getStringExtra("key");
+        notificationKey=getIntent().getStringExtra("notif");
+
         mediaUriList = new ArrayList<>();
         mChatDb = FirebaseDatabase.getInstance().getReference().child("Chat").child(ChatId);
         mchat = new ArrayList<>();
@@ -226,7 +230,7 @@ public class MessageActivity extends AppCompatActivity {
             Map mHash = new HashMap<>();
             mHash.put("text",sendermessageedittext.getText().toString());
             mHash.put("creator", FirebaseAuth.getInstance().getUid());
-
+            new SendNotif(sendermessageedittext.getText().toString(),"New Message",notificationKey);
             //mref.updateChildren(mHash);
 
 

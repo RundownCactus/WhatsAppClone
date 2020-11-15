@@ -122,14 +122,18 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/Media"
-
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:orientation="vertical"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:ignore="MissingConstraints"
             tools:layout_editor_absoluteX="30dp"
-            tools:layout_editor_absoluteY="357dp"></androidx.recyclerview.widget.RecyclerView>
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="8dp">
+        </androidx.recyclerview.widget.RecyclerView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <RelativeLayout

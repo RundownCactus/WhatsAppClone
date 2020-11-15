@@ -7,13 +7,12 @@ import org.json.JSONObject;
 
 public class SendNotif {
     public SendNotif(String msg,String heading,String notifKey){
-        notifKey = "e085c92c-f3c3-4ced-b786-de43d9cfa77e";
          try {
-            JSONObject notifContent = new JSONObject("{'contents':{'en':'" +msg + "'},"+
-                    "'include_player_ids':['"+notifKey
-                    +"'],"
-                    + "'headings':{'en':"+heading+"'}}" );
-            OneSignal.postNotification(notifContent,null);
+             JSONObject notificationContent = new JSONObject(
+                     "{'contents':{'en':'" + msg + "'},"+
+                             "'include_player_ids':['" + notifKey + "']," +
+                             "'headings':{'en': '" + heading + "'}}");
+            OneSignal.postNotification(notificationContent,null);
         } catch (JSONException e) {
             e.printStackTrace();
         }

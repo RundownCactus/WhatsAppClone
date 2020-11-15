@@ -12,10 +12,10 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:src="@drawable/ic_logo"
-        android:layout_marginTop="64dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/emailaddress1"
         tools:ignore="MissingConstraints" />
 
     <com.google.android.material.textfield.TextInputLayout
